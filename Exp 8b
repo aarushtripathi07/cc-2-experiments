@@ -1,0 +1,35 @@
+#include <vector>
+#include <unordered_map>
+using namespace std;
+class Solution {
+public:
+    bool canCross(vector<int>& stones) {
+        int n = stones.size();
+        if (stones[1] != 1) return false;
+        unordered_map<int, int> pos_to_idx;
+        for (int i = 0; i < n; ++i) {
+            pos_to_idx[stones[i]] = i;
+        }
+        vector<vector<int>> memo(n, vector<int>(n + 1, 0));
+        return solve(1, 1, stones, pos_to_idx, memo);
+    }
+private:
+    bool solve(int idx, int k, const vector<int>& stones, 
+               const unordered_map<int, int>& pos_to_idx, vector<vector<int>>& memo) {
+        if (idx == stones.size() - 1) return true;
+        if (memo[idx][k] != 0) return memo[idx][k] == 1;
+        for (int next_k = k - 1; next_k <= k + 1; ++next_k) {
+            if (next_k <= 0) continue;
+            int next_pos = stones[idx] + next_k;
+            if (pos_to_idx.count(next_pos)) {
+                int next_idx = pos_to_idx.at(next_pos);
+                if (solve(next_idx, next_k, stones, pos_to_idx, memo)) {
+                    memo[idx][k] = 1;
+                    return true;
+                }
+            }
+        }
+        memo[idx][k] = 2; 
+        return false;
+    }
+};
